@@ -9,27 +9,27 @@ var request = require("request");
 
 var cheerio = require("cheerio");
 
+var app = express();
 
 var exphbs = require('express-handlebars');
 // Configure app with handlebars
-module.exports = function(app) {
- var hbs = ehandlebars.create({
-   defaultLayout: 'app',
-   helpers: {
-     section: function(name, options) {
-       if (!this._sections) this._sections = {}
-       this._sections[name] = options.fn(this)
-       return null
-     }
-   }
- })
+// module.exports = function(app) {
+//  var hbs = ehandlebars.create({
+//    defaultLayout: 'app',
+//    helpers: {
+//      section: function(name, options) {
+//        if (!this._sections) this._sections = {}
+//        this._sections[name] = options.fn(this)
+//        return null
+//      }
+//    }
+//  })
 
- app.engine('handlebars', hbs.engine)
+ app.engine('handlebars', exphbs({defaultLayout: "main"}))
  app.set('view engine', 'handlebars')
-}
 
 
-var app = express();
+
 
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({
@@ -49,7 +49,19 @@ db.once("open", function() {
     console.log("SUCCESS");
 });
 
+app.get('/', function(req, res){
+      Article.find({}, function(error, doc) {
+        if (error) {
+            console.log(error);
+        }
+        else {
+          res.render('index', {articles: doc})
+        }
+    })
 
+
+
+});
 //scrapes from the onion
 app.get("/scrape", function(req, res) {
     request('http://www.theonion.com/section/entertainment/', function(error, response, html) {
