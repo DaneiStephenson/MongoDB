@@ -4,20 +4,29 @@ var logger = require("morgan");
 var mongoose = require("mongoose");
 var Comment = require("./models/Comment.js");
 var Article = require("./models/Article.js");
-
+var methodOverride = require("method-override");
 var request = require("request");
 
 var cheerio = require("cheerio");
 
 
-var app = express();
+var exphbs = require('express-handlebars');
+// Configure app with handlebars
+module.exports = function(app) {
+ var hbs = ehandlebars.create({
+   defaultLayout: 'app',
+   helpers: {
+     section: function(name, options) {
+       if (!this._sections) this._sections = {}
+       this._sections[name] = options.fn(this)
+       return null
+     }
+   }
+ })
 
-app.use(express.static(process.cwd() + "/"));
-
-
-var exphbs = require("express-handlebars");
-  app.engine("handlebars", exphbs({ defaultLayout: "index" }));
-  app.set("view engine", "handlebars");
+ app.engine('handlebars', hbs.engine)
+ app.set('view engine', 'handlebars')
+}
 
 
 var app = express();
@@ -27,7 +36,7 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-
+app.use(express.static("public"));
 
 mongoose.connect("mongodb://localhost/onion");
 var db = mongoose.connection;
@@ -125,3 +134,4 @@ app.post("/articles/:id", function(req, res) {
 app.listen(3000, function() {
     console.log("App running on port 3000!");
 });
+
